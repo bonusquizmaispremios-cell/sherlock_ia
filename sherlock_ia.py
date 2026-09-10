@@ -303,6 +303,10 @@ elif st.session_state.etapa == "App":
     # TABS
     _tab_Home, _tab_Investigacao, _tab_Hipoteses, _tab_Evidencias, _tab_Timeline, _tab_Contradicoes, _tab_Perfil, _tab_Conversas, _tab_Imagens, _tab_Domestica, _tab_Digital, _tab_Fraudes, _tab_Padroes, _tab_Probabilidades, _tab_Perguntas, _tab_Critico, _tab_Metodo, _tab_Forense, _tab_Casos, _tab_Simulador, _tab_Diario, _tab_Painel, _tab_Academia, _tab_Desafio, _tab_Sherlock24, _tab_CasosImpossiveis, _tab_Biblioteca = st.tabs(['🏠 Painel Principal', '🔎 Investigação Geral', '🧩 Construção de Hipó', '📋 Organizador de Evi', '📄 Timeline', '📄 Contradicoes', '📄 Perfil', '📄 Conversas', '📄 Imagens', '📄 Domestica', '📄 Digital', '📄 Fraudes', '📄 Padroes', '📄 Probabilidades', '📄 Perguntas', '📄 Critico', '📄 Metodo', '📄 Forense', '📄 Casos', '📄 Simulador', '📄 Diario', '📄 Painel', '📄 Academia', '📄 Desafio', '📄 Sherlock24', '📄 CasosImpossiveis', '📄 Biblioteca'])
 
+
+    # TABS — navegação nativa (16 + Ferramentas)
+    (_tab_Home, _tab_Investigacao, _tab_Hipoteses, _tab_Evidencias, _tab_Timeline, _tab_Simulador, _tab_Diario, _tab_Painel, _tab_Academia, _tab_Desafio, _tab_Sherlock24, _tab_CasosImpossiveis, _tab_Biblioteca, _tab_Forense, _tab_Casos, _tab_Ferramentas) = st.tabs(['🏠 Home', '🔍 Investigação', '💡 Hipóteses', '🔬 Evidências', '⏱️ Timeline', '🎯 Simulador', '📖 Diário', '📈 Painel', '🎓 Academia', '🏆 Desafio', '🤖 Sherlock 24h', '💎 Casos Impossíveis', '📚 Biblioteca', '🧪 Lab Forense', '📋 Casos Históricos', '🛠️ Ferramentas'])
+
     with _tab_Home:
         col_u, col_r = st.columns([3, 1])
         with col_u:
@@ -571,492 +575,6 @@ elif st.session_state.etapa == "App":
 
         # ========================
         # DETECTOR DE CONTRADIÇÕES
-        # ========================
-
-    with _tab_Contradicoes:
-        st.header("🎭 Detector de Contradições")
-        st.markdown("Cole relatos, mensagens ou depoimentos para identificar inconsistências.")
-
-        relatos_contra = st.text_area("📝 Cole os relatos/depoimentos (identifique quem disse o quê):", height=200,
-            placeholder="ex: Pessoa A disse: 'Eu não estava lá às 14h'. Mais tarde, Pessoa A disse: 'Cheguei por volta de 14h e já tinha gente lá'...", key="sherlock12_d2")
-
-        if st.button("🎭 DETECTAR CONTRADIÇÕES", key="sherlock16_d2"):
-            if relatos_contra.strip():
-                with st.spinner("Analisando..."):
-                    prompt = (
-                        f"Analise estes relatos identificando contradições e inconsistências.\n"
-                        f"Relatos: {relatos_contra}\n\n"
-                        f"FORMATO:\n\n"
-                        f"🎭 ANÁLISE DE CONTRADIÇÕES\n\n"
-                        f"🔄 MUDANÇAS DE VERSÃO:\n[onde a mesma pessoa disse coisas diferentes]\n\n"
-                        f"⚠️ CONTRADIÇÕES ENTRE RELATOS:\n[onde diferentes pessoas se contradizem]\n\n"
-                        f"❓ INFORMAÇÕES CONFLITANTES:\n[dados que não se encaixam]\n\n"
-                        f"❓ PERGUNTAS AINDA NÃO RESPONDIDAS:\n[o que precisa ser esclarecido]\n\n"
-                        f"🎯 CONTRADIÇÃO MAIS SIGNIFICATIVA:\n[qual merece mais atenção, e por quê]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Contradicoes", relatos_contra[:60], res)
-                    st.session_state['contra_temp'] = res
-            else:
-                st.warning("Cole os relatos.")
-
-        if st.session_state.get('contra_temp'):
-            st.markdown(f"<div class='card-red'>{st.session_state['contra_temp']}</div>", unsafe_allow_html=True)
-            st.markdown(DISCLAIMER_PADRAO, unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['contra_temp'], file_name="contradicoes.txt", mime="text/plain", key="sherlock17")
-
-        # ========================
-        # PERFIL COMPORTAMENTAL
-        # ========================
-
-    with _tab_Perfil:
-        st.header("👤 Perfil Comportamental")
-        st.markdown(DISCLAIMER_COMPORTAMENTAL, unsafe_allow_html=True)
-
-        comportamento_perfil = st.text_area("📝 Descreva os comportamentos observados:", height=150,
-            placeholder="ex: A pessoa começou a chegar mais tarde no trabalho, ficou mais quieta nas reuniões, e parou de almoçar com a equipe...", key="sherlock11_d2")
-
-        if st.button("👤 ANALISAR PADRÕES", key="sherlock18"):
-            if comportamento_perfil.strip():
-                with st.spinner("Analisando padrões..."):
-                    prompt = (
-                        f"Analise estes comportamentos descritos, gerando hipóteses (nunca diagnósticos).\n"
-                        f"Comportamentos: {comportamento_perfil}\n\n"
-                        f"FORMATO:\n\n"
-                        f"👤 ANÁLISE DE PADRÕES COMPORTAMENTAIS\n\n"
-                        f"🔄 MUDANÇAS IDENTIFICADAS:\n[o que mudou, com base no relato]\n\n"
-                        f"💭 POSSÍVEIS MOTIVAÇÕES (hipóteses, não certezas):\n[3-4 explicações possíveis, incluindo motivos benignos e neutros]\n\n"
-                        f"📊 PADRÕES E HÁBITOS:\n[o que parece ser recorrente]\n\n"
-                        f"❤️ FATORES EMOCIONAIS POSSÍVEIS:\n[hipóteses sobre estado emocional, com cautela]\n\n"
-                        f"❓ O QUE AINDA NÃO SE SABE:\n[informação que falta para entender melhor]\n\n"
-                        f"💬 SUGESTÃO:\n[1 frase recomendando, quando aplicável, conversar diretamente com a pessoa em vez de apenas inferir]"
-                    )
-                    res = sherlock_ia(prompt, "Gere hipóteses variadas, incluindo explicações neutras e benignas — não foque só em explicações negativas ou suspeitas.")
-                    salvar_caso("Perfil", comportamento_perfil[:60], res)
-                    st.session_state['perfil_temp'] = res
-            else:
-                st.warning("Descreva os comportamentos.")
-
-        if st.session_state.get('perfil_temp'):
-            st.markdown(f"<div class='card-purple'>{st.session_state['perfil_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['perfil_temp'], file_name="perfil_comportamental.txt", mime="text/plain", key="sherlock19")
-
-        # ========================
-        # ANÁLISE DE CONVERSAS
-        # ========================
-
-    with _tab_Conversas:
-        st.header("💬 Análise de Conversas")
-        st.markdown(DISCLAIMER_COMPORTAMENTAL, unsafe_allow_html=True)
-
-        conversa_analise = st.text_area("📝 Cole a conversa que você quer analisar:", height=200,
-            placeholder="Cole aqui a conversa, identificando quem disse cada parte...", key="sherlock10_d2")
-
-        if st.button("💬 ANALISAR CONVERSA", key="sherlock20"):
-            if conversa_analise.strip():
-                with st.spinner("Analisando..."):
-                    prompt = (
-                        f"Analise esta conversa.\n"
-                        f"Conversa: {conversa_analise}\n\n"
-                        f"FORMATO:\n\n"
-                        f"💬 ANÁLISE DA CONVERSA\n\n"
-                        f"🎭 MUDANÇAS DE TOM:\n[onde o tom muda e o que isso pode sugerir]\n\n"
-                        f"⚠️ POSSÍVEIS CONTRADIÇÕES:\n[inconsistências no que foi dito]\n\n"
-                        f"🙈 ASSUNTOS EVITADOS:\n[temas que parecem ser desviados ou evitados]\n\n"
-                        f"🔄 COMUNICAÇÃO INDIRETA:\n[onde algo parece estar sendo dito sem ser dito diretamente]\n\n"
-                        f"❓ PERGUNTAS SEM RESPOSTA:\n[o que foi perguntado mas não respondido claramente]\n\n"
-                        f"✅ COERÊNCIA GERAL: [Alta/Média/Baixa]\n[avaliação geral de quão consistente é a conversa]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Conversas", conversa_analise[:60], res)
-                    st.session_state['conv_temp'] = res
-            else:
-                st.warning("Cole a conversa.")
-
-        if st.session_state.get('conv_temp'):
-            st.markdown(f"<div class='card-purple'>{st.session_state['conv_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['conv_temp'], file_name="analise_conversa.txt", mime="text/plain", key="sherlock21")
-
-        # ========================
-        # ANÁLISE DE IMAGENS (DESCRITIVA)
-        # ========================
-
-    with _tab_Imagens:
-        st.header("📸 Análise de Imagens")
-        st.info("📝 Este app trabalha por descrição em texto — descreva a cena com o máximo de detalhes possível.")
-
-        descricao_imagem = st.text_area("📝 Descreva detalhadamente o que você vê na imagem/cena:", height=180,
-            placeholder="ex: Sala com a janela aberta, uma cadeira fora do lugar normal, papéis no chão perto da mesa, luz apagada...", key="sherlock9_d2")
-
-        if st.button("📸 ANALISAR DESCRIÇÃO", key="sherlock22"):
-            if descricao_imagem.strip():
-                with st.spinner("Analisando os detalhes..."):
-                    prompt = (
-                        f"Analise esta descrição de cena/imagem com olhar investigativo.\n"
-                        f"Descrição: {descricao_imagem}\n\n"
-                        f"FORMATO:\n\n"
-                        f"📸 ANÁLISE DA CENA DESCRITA\n\n"
-                        f"🔍 OBJETOS RELEVANTES:\n[itens mencionados que podem ter importância]\n\n"
-                        f"🏠 AMBIENTE E ORGANIZAÇÃO:\n[o que o estado do ambiente sugere]\n\n"
-                        f"👣 POSSÍVEIS VESTÍGIOS:\n[sinais que indicam o que pode ter acontecido]\n\n"
-                        f"⚠️ ELEMENTOS QUE CHAMAM ATENÇÃO:\n[o que parece fora do normal ou inconsistente]\n\n"
-                        f"👀 DETALHES QUE PODEM TER SIDO IGNORADOS:\n[perguntas sobre o que mais observar]\n\n"
-                        f"🧩 O QUE ESSA CENA PODE SUGERIR:\n[hipóteses, sempre como possibilidades]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Imagens", descricao_imagem[:60], res)
-                    st.session_state['img_temp'] = res
-            else:
-                st.warning("Descreva a cena.")
-
-        if st.session_state.get('img_temp'):
-            st.markdown(f"<div class='card'>{st.session_state['img_temp']}</div>", unsafe_allow_html=True)
-            st.markdown(DISCLAIMER_PADRAO, unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['img_temp'], file_name="analise_imagem.txt", mime="text/plain", key="sherlock23")
-
-        # ========================
-        # INVESTIGAÇÃO DOMÉSTICA
-        # ========================
-
-    with _tab_Domestica:
-        st.header("🏠 Investigação Doméstica")
-
-        tipo_dom = st.selectbox("Tipo de problema:", ["Vazamento de água","Ruído estranho","Cheiro incomum","Infiltração","Defeito elétrico","Outro"], key="sherlock24")
-        descricao_dom = st.text_area("📝 Descreva o problema com detalhes:", height=150,
-            placeholder="ex: Aparece uma mancha de umidade no canto do teto da sala, principalmente depois de chover...", key="sherlock8_d2")
-
-        if st.button("🏠 INVESTIGAR PROBLEMA", key="sherlock25"):
-            if descricao_dom.strip():
-                with st.spinner("Investigando..."):
-                    prompt = (
-                        f"Investigue este problema doméstico.\n"
-                        f"Tipo: {tipo_dom}. Descrição: {descricao_dom}\n\n"
-                        f"FORMATO:\n\n"
-                        f"🏠 INVESTIGAÇÃO — {tipo_dom.upper()}\n\n"
-                        f"🔍 POSSÍVEIS CAUSAS (da mais para a menos provável):\n[liste com lógica]\n\n"
-                        f"🧪 TESTES QUE VOCÊ PODE FAZER:\n[ações simples para isolar a causa]\n\n"
-                        f"⚠️ SINAIS DE URGÊNCIA:\n[quando isso indica um problema que precisa de atenção rápida]\n\n"
-                        f"🔧 QUANDO CHAMAR UM PROFISSIONAL:\n[a partir de que ponto vale a pena]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Domestica", f"{tipo_dom}: {descricao_dom[:40]}", res)
-                    st.session_state['dom_temp'] = res
-            else:
-                st.warning("Descreva o problema.")
-
-        if st.session_state.get('dom_temp'):
-            st.markdown(f"<div class='card-green'>{st.session_state['dom_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['dom_temp'], file_name="investigacao_domestica.txt", mime="text/plain", key="sherlock26")
-
-        # ========================
-        # INVESTIGAÇÃO DIGITAL
-        # ========================
-
-    with _tab_Digital:
-        st.header("💻 Investigação Digital")
-
-        tipo_dig = st.selectbox("O que você quer investigar:", ["Site suspeito","Mensagem/e-mail estranho","Perfil possivelmente falso","Link suspeito","Possível engenharia social","Outro"], key="sherlock27")
-        descricao_dig = st.text_area("📝 Descreva o que você está vendo:", height=150,
-            placeholder="ex: Recebi uma mensagem dizendo que ganhei um prêmio e pedindo para clicar em um link...", key="sherlock7_d2")
-
-        if st.button("💻 ANALISAR", key="sherlock28"):
-            if descricao_dig.strip():
-                with st.spinner("Analisando..."):
-                    prompt = (
-                        f"Analise esta situação digital suspeita.\n"
-                        f"Tipo: {tipo_dig}. Descrição: {descricao_dig}\n\n"
-                        f"FORMATO:\n\n"
-                        f"💻 ANÁLISE DIGITAL — {tipo_dig.upper()}\n\n"
-                        f"🚩 SINAIS DE ALERTA IDENTIFICADOS:\n[com base na descrição]\n\n"
-                        f"🎭 TÉCNICA PROVÁVEL UTILIZADA:\n[se for um golpe, qual técnica é essa]\n\n"
-                        f"📊 NÍVEL DE SUSPEITA: [Baixo/Médio/Alto]\n[justificativa]\n\n"
-                        f"🛡️ O QUE FAZER:\n[ações recomendadas — não clicar, verificar, bloquear, etc]\n\n"
-                        f"📚 COMO RECONHECER ISSO NO FUTURO:\n[padrão geral para identificar esse tipo de ameaça]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Digital", f"{tipo_dig}: {descricao_dig[:40]}", res)
-                    st.session_state['dig_temp'] = res
-            else:
-                st.warning("Descreva a situação.")
-
-        if st.session_state.get('dig_temp'):
-            st.markdown(f"<div class='card-red'>{st.session_state['dig_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['dig_temp'], file_name="investigacao_digital.txt", mime="text/plain", key="sherlock29")
-
-        # ========================
-        # FRAUDES E GOLPES
-        # ========================
-
-    with _tab_Fraudes:
-        st.header("💰 Fraudes e Golpes")
-
-        golpe_select = st.selectbox("Golpe que você quer entender:", [
-            "Golpe do Pix", "Golpe da falsa central bancária", "Golpe do falso boleto",
-            "Golpe do amor (romance scam)", "Pirâmide financeira", "Golpe do falso emprego",
-            "Investimento fraudulento", "Outro (descrever)",
-        ], key="sherlock6_d2")
-        descricao_golpe = ""
-        if golpe_select == "Outro (descrever)":
-            descricao_golpe = st.text_input("Descreva a situação:", key="sherlock30")
-
-        if st.button("💰 ENTENDER ESSE GOLPE", key="sherlock31"):
-            topico = descricao_golpe if golpe_select == "Outro (descrever)" and descricao_golpe.strip() else golpe_select
-            if topico.strip():
-                with st.spinner("Preparando explicação..."):
-                    prompt = (
-                        f"Explique detalhadamente: {topico}\n\n"
-                        f"FORMATO:\n\n"
-                        f"💰 {topico.upper()}\n\n"
-                        f"🎭 COMO FUNCIONA:\n[passo a passo de como os criminosos aplicam isso]\n\n"
-                        f"🚩 SINAIS DE ALERTA:\n[como reconhecer]\n\n"
-                        f"🛡️ COMO SE PROTEGER:\n[ações preventivas]\n\n"
-                        f"⚡ COMO AGIR SE JÁ CAIU NESSE GOLPE:\n[passos imediatos]\n\n"
-                        f"📂 INFORMAÇÕES IMPORTANTES A REUNIR:\n[o que documentar para denúncia/recuperação]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Fraudes", topico, res)
-                    st.session_state['fraude_temp'] = res
-            else:
-                st.warning("Escolha ou descreva o golpe.")
-
-        if st.session_state.get('fraude_temp'):
-            st.markdown(f"<div class='card-dark'>{st.session_state['fraude_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['fraude_temp'], file_name="fraudes_golpes.txt", mime="text/plain", key="sherlock32")
-
-        # ========================
-        # DETECTOR DE PADRÕES
-        # ========================
-
-    with _tab_Padroes:
-        st.header("🔍 Detector de Padrões")
-
-        dados_padroes = st.text_area("📝 Liste os dados (datas, pessoas, lugares, eventos):", height=180,
-            placeholder="ex: Segunda - encontro com João no café X\nQuarta - mensagem de Maria sobre o mesmo assunto\n...", key="sherlock5_d2")
-
-        if st.button("🔍 ENCONTRAR PADRÕES", key="sherlock33"):
-            if dados_padroes.strip():
-                with st.spinner("Procurando padrões..."):
-                    prompt = (
-                        f"Analise estes dados procurando padrões e relações escondidas.\n"
-                        f"Dados: {dados_padroes}\n\n"
-                        f"FORMATO:\n\n"
-                        f"🔍 PADRÕES IDENTIFICADOS\n\n"
-                        f"🔗 RELAÇÕES ENTRE OS ELEMENTOS:\n[conexões encontradas entre datas, pessoas, lugares]\n\n"
-                        f"📊 PADRÕES DE FREQUÊNCIA:\n[o que se repete e com que regularidade]\n\n"
-                        f"⏰ PADRÕES TEMPORAIS:\n[horários ou dias que se destacam]\n\n"
-                        f"🎯 PADRÃO MAIS SIGNIFICATIVO:\n[o que mais chama atenção, e por quê]\n\n"
-                        f"❓ O QUE ISSO PODE SUGERIR:\n[hipóteses derivadas do padrão]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Padroes", "Detecção de padrões", res)
-                    st.session_state['pad_temp'] = res
-            else:
-                st.warning("Liste os dados.")
-
-        if st.session_state.get('pad_temp'):
-            st.markdown(f"<div class='card-teal'>{st.session_state['pad_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['pad_temp'], file_name="padroes.txt", mime="text/plain", key="sherlock34")
-
-        # ========================
-        # ANÁLISE DE PROBABILIDADES
-        # ========================
-
-    with _tab_Probabilidades:
-        st.header("📊 Análise de Probabilidades")
-
-        hipoteses_prob = st.text_area("📝 Liste as hipóteses que você já tem (uma por linha):", height=150,
-            placeholder="ex: A pessoa esqueceu o compromisso\nA pessoa teve um imprevisto\nA pessoa evitou de propósito...", key="sherlock4_d2")
-        evidencias_prob = st.text_area("📝 Evidências disponíveis:", height=100,
-            placeholder="ex: Ela respondeu mensagens normalmente outras vezes...", key="sherlock3_d2")
-
-        if st.button("📊 ANALISAR PROBABILIDADES", key="sherlock35"):
-            if hipoteses_prob.strip():
-                with st.spinner("Calculando consistência..."):
-                    prompt = (
-                        f"Analise a consistência destas hipóteses com as evidências.\n"
-                        f"Hipóteses: {hipoteses_prob}\n"
-                        f"Evidências: {evidencias_prob or 'não informadas'}\n\n"
-                        f"FORMATO:\n\n"
-                        f"📊 ANÁLISE DE PROBABILIDADES\n\n"
-                        f"[Para cada hipótese listada:]\n"
-                        f"🧩 [HIPÓTESE]\n"
-                        f"Consistência com as evidências: [X]/100\n"
-                        f"Justificativa: [por quê]\n\n"
-                        f"🎯 HIPÓTESE MAIS CONSISTENTE:\n[qual tem maior consistência com as evidências, e por quê — sem afirmar certeza absoluta]\n\n"
-                        f"⚠️ LIMITAÇÃO DESTA ANÁLISE:\n[o que ainda impede uma conclusão definitiva]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Probabilidades", "Análise de probabilidades", res)
-                    st.session_state['prob_temp'] = res
-            else:
-                st.warning("Liste as hipóteses.")
-
-        if st.session_state.get('prob_temp'):
-            renderizar_indice(st.session_state['prob_temp'], "CONSISTÊNCIA GERAL")
-            st.markdown(f"<div class='card'>{st.session_state['prob_temp']}</div>", unsafe_allow_html=True)
-            st.markdown(DISCLAIMER_PADRAO, unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['prob_temp'], file_name="probabilidades.txt", mime="text/plain", key="sherlock36")
-
-        # ========================
-        # PERGUNTAS INTELIGENTES
-        # ========================
-
-    with _tab_Perguntas:
-        st.header("❓ Perguntas Inteligentes")
-
-        situacao_perg = st.text_area("📝 Descreva a situação:", height=150, value=st.session_state.caso_padrao, key="situacao_perg")
-
-        if st.button("❓ GERAR PERGUNTAS", key="sherlock37"):
-            if situacao_perg.strip():
-                with st.spinner("Pensando nas perguntas certas..."):
-                    prompt = (
-                        f"Gere as perguntas que um investigador experiente faria sobre esta situação.\n"
-                        f"Situação: {situacao_perg}\n\n"
-                        f"FORMATO:\n\n"
-                        f"❓ PERGUNTAS QUE UM INVESTIGADOR FARIA\n\n"
-                        f"🎯 PERGUNTAS FUNDAMENTAIS:\n[5-7 perguntas essenciais que ainda não foram respondidas]\n\n"
-                        f"🔍 PERGUNTAS QUE NINGUÉM PENSOU EM FAZER:\n[2-3 perguntas não óbvias mas potencialmente decisivas]\n\n"
-                        f"💡 POR QUE ESSAS PERGUNTAS IMPORTAM:\n[explicação de como cada uma pode destravar a investigação]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Perguntas", situacao_perg[:60], res)
-                    st.session_state['perg_temp'] = res
-            else:
-                st.warning("Descreva a situação.")
-
-        if st.session_state.get('perg_temp'):
-            st.markdown(f"<div class='card-gold'>{st.session_state['perg_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['perg_temp'], file_name="perguntas.txt", mime="text/plain", key="sherlock38")
-
-        # ========================
-        # PENSAMENTO CRÍTICO
-        # ========================
-
-    with _tab_Critico:
-        st.header("⚖️ Pensamento Crítico")
-
-        raciocinio_critico = st.text_area("📝 Cole seu raciocínio ou conclusão sobre algo:", height=150,
-            placeholder="ex: Acho que ela está escondendo algo porque ficou nervosa quando perguntei sobre o fim de semana...", key="sherlock2")
-
-        if st.button("⚖️ ANALISAR MEU RACIOCÍNIO", key="sherlock39"):
-            if raciocinio_critico.strip():
-                with st.spinner("Analisando..."):
-                    prompt = (
-                        f"Analise este raciocínio identificando possíveis vieses e erros de interpretação.\n"
-                        f"Raciocínio: {raciocinio_critico}\n\n"
-                        f"FORMATO:\n\n"
-                        f"⚖️ ANÁLISE DO RACIOCÍNIO\n\n"
-                        f"🧠 VIESES POSSÍVEIS IDENTIFICADOS:\n[viés de confirmação, ancoragem, etc — se aplicável]\n\n"
-                        f"⚠️ POSSÍVEIS ERROS DE INTERPRETAÇÃO:\n[onde a conclusão pode estar pulando etapas]\n\n"
-                        f"📊 GENERALIZAÇÕES:\n[se há generalização apressada]\n\n"
-                        f"❓ FALTA DE EVIDÊNCIAS:\n[onde a conclusão se apoia em suposição, não fato]\n\n"
-                        f"✅ COMO FORTALECER ESSE RACIOCÍNIO:\n[o que ajudaria a confirmar ou refutar com mais solidez]"
-                    )
-                    res = sherlock_ia(prompt)
-                    salvar_caso("Critico", raciocinio_critico[:60], res)
-                    st.session_state['crit_temp'] = res
-            else:
-                st.warning("Cole seu raciocínio.")
-
-        if st.session_state.get('crit_temp'):
-            st.markdown(f"<div class='card-dark'>{st.session_state['crit_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['crit_temp'], file_name="pensamento_critico.txt", mime="text/plain", key="sherlock40")
-
-        # ========================
-        # MÉTODO SHERLOCK
-        # ========================
-
-    with _tab_Metodo:
-        st.header("🧠 Método Sherlock")
-
-        tecnica_metodo = st.selectbox("Técnica:", ["Dedução","Indução","Abdução","Observação","Eliminação de hipóteses","Raciocínio lógico","Investigação científica"], key="sherlock41")
-
-        if st.button("🧠 APRENDER", key="sherlock42"):
-            with st.spinner("Preparando explicação..."):
-                prompt = (
-                    f"Explique de forma didática a técnica: {tecnica_metodo}\n\n"
-                    f"FORMATO:\n\n"
-                    f"🧠 {tecnica_metodo.upper()}\n\n"
-                    f"📖 O QUE É:\n[definição clara]\n\n"
-                    f"🔍 COMO FUNCIONA:\n[mecanismo passo a passo]\n\n"
-                    f"💡 EXEMPLO PRÁTICO:\n[exemplo ilustrativo, fictício]\n\n"
-                    f"🎯 QUANDO USAR:\n[situações onde essa técnica é mais útil]\n\n"
-                    f"🏋️ EXERCÍCIO PARA TREINAR:\n[1 exercício prático]"
-                )
-                res = sherlock_ia(prompt)
-                salvar_caso("Metodo", tecnica_metodo, res)
-                st.session_state['metodo_temp'] = res
-
-        if st.session_state.get('metodo_temp'):
-            st.markdown(f"<div class='card'>{st.session_state['metodo_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['metodo_temp'], file_name="metodo.txt", mime="text/plain", key="sherlock43")
-
-        # ========================
-        # LABORATÓRIO FORENSE (EDUCATIVO)
-        # ========================
-
-    with _tab_Forense:
-        st.header("🧪 Laboratório Forense (Educativo)")
-        st.markdown(DISCLAIMER_FORENSE, unsafe_allow_html=True)
-
-        tema_forense = st.selectbox("Tema:", [
-            "Impressões digitais", "DNA forense", "Análise de pegadas", "Vestígios e indícios",
-            "Cadeia de custódia", "Balística", "Documentoscopia", "Perícia digital",
-        ], key="sherlock1_d2")
-
-        if st.button("🧪 APRENDER", key="sherlock44"):
-            with st.spinner("Preparando conteúdo..."):
-                prompt = (
-                    f"Explique de forma educativa: {tema_forense}\n\n"
-                    f"FORMATO:\n\n"
-                    f"🧪 {tema_forense.upper()}\n\n"
-                    f"📖 O QUE É E COMO FUNCIONA:\n[explicação científica acessível]\n\n"
-                    f"🔬 PRINCÍPIOS CIENTÍFICOS ENVOLVIDOS:\n[a base científica/lógica do método]\n\n"
-                    f"📋 COMO É USADO EM INVESTIGAÇÕES REAIS:\n[contexto de uso pela perícia oficial]\n\n"
-                    f"💡 CURIOSIDADE HISTÓRICA:\n[1 fato interessante sobre a evolução dessa técnica]"
-                )
-                res = sherlock_ia(prompt, "Mantenha o conteúdo estritamente educativo e conceitual — nunca forneça instruções de como evitar ou burlar essa técnica forense.")
-                salvar_caso("Forense", tema_forense, res)
-                st.session_state['for_temp'] = res
-
-        if st.session_state.get('for_temp'):
-            st.markdown(f"<div class='card-blue'>{st.session_state['for_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['for_temp'], file_name="forense.txt", mime="text/plain", key="sherlock45")
-
-        # ========================
-        # CASOS HISTÓRICOS
-        # ========================
-
-    with _tab_Casos:
-        st.header("📚 Casos Históricos")
-
-        caso_hist = st.text_input("🔍 Caso de interesse (ou deixe vazio para sugestão):", placeholder="ex: um caso famoso de fraude, um mistério clássico resolvido por perícia...", key="sherlock46")
-
-        if st.button("📚 EXPLORAR CASO", key="sherlock47"):
-            with st.spinner("Buscando o caso..."):
-                topico_caso = caso_hist if caso_hist.strip() else "um caso histórico famoso de investigação bem documentado"
-                prompt = (
-                    f"Apresente um caso investigativo histórico relevante relacionado a: {topico_caso}\n\n"
-                    f"FORMATO:\n\n"
-                    f"📚 CASO: [NOME DO CASO]\n\n"
-                    f"📖 CONTEXTO:\n[o que aconteceu]\n\n"
-                    f"🔍 COMO FOI INVESTIGADO:\n[método usado pelos investigadores]\n\n"
-                    f"🎯 EVIDÊNCIAS DECISIVAS:\n[o que resolveu o caso]\n\n"
-                    f"⚠️ ERROS COMETIDOS NA INVESTIGAÇÃO:\n[se houver, o que poderia ter sido feito melhor]\n\n"
-                    f"💡 LIÇÃO PARA INVESTIGADORES:\n[o que esse caso ensina]\n\n"
-                    f"⚠️ NOTA: se não tiver certeza de detalhes específicos e verificáveis sobre um caso real, "
-                    f"diga isso claramente em vez de inventar fatos."
-                )
-                res = sherlock_ia(prompt)
-                salvar_caso("Casos", topico_caso, res)
-                st.session_state['caso_hist_temp'] = res
-
-        if st.session_state.get('caso_hist_temp'):
-            st.markdown(f"<div class='card-dark'>{st.session_state['caso_hist_temp']}</div>", unsafe_allow_html=True)
-            st.download_button("📋 Baixar (.txt)", data=st.session_state['caso_hist_temp'], file_name="caso_historico.txt", mime="text/plain", key="sherlock48")
-
-        # ========================
-        # SIMULADOR DE INVESTIGAÇÃO
         # ========================
 
     with _tab_Simulador:
@@ -1516,6 +1034,503 @@ elif st.session_state.etapa == "App":
         "</div>", unsafe_allow_html=True
         )
 
+
+        # --- RODAPÉ ---
+        st.markdown(
+        "<div style='text-align:center;color:#999;font-size:0.8em;margin-top:60px;'>"
+        "</div>", unsafe_allow_html=True
+        )
+
+    with _tab_Forense:
+        st.header("🧪 Laboratório Forense (Educativo)")
+        st.markdown(DISCLAIMER_FORENSE, unsafe_allow_html=True)
+
+        tema_forense = st.selectbox("Tema:", [
+            "Impressões digitais", "DNA forense", "Análise de pegadas", "Vestígios e indícios",
+            "Cadeia de custódia", "Balística", "Documentoscopia", "Perícia digital",
+        ], key="sherlock1_d2")
+
+        if st.button("🧪 APRENDER", key="sherlock44"):
+            with st.spinner("Preparando conteúdo..."):
+                prompt = (
+                    f"Explique de forma educativa: {tema_forense}\n\n"
+                    f"FORMATO:\n\n"
+                    f"🧪 {tema_forense.upper()}\n\n"
+                    f"📖 O QUE É E COMO FUNCIONA:\n[explicação científica acessível]\n\n"
+                    f"🔬 PRINCÍPIOS CIENTÍFICOS ENVOLVIDOS:\n[a base científica/lógica do método]\n\n"
+                    f"📋 COMO É USADO EM INVESTIGAÇÕES REAIS:\n[contexto de uso pela perícia oficial]\n\n"
+                    f"💡 CURIOSIDADE HISTÓRICA:\n[1 fato interessante sobre a evolução dessa técnica]"
+                )
+                res = sherlock_ia(prompt, "Mantenha o conteúdo estritamente educativo e conceitual — nunca forneça instruções de como evitar ou burlar essa técnica forense.")
+                salvar_caso("Forense", tema_forense, res)
+                st.session_state['for_temp'] = res
+
+        if st.session_state.get('for_temp'):
+            st.markdown(f"<div class='card-blue'>{st.session_state['for_temp']}</div>", unsafe_allow_html=True)
+            st.download_button("📋 Baixar (.txt)", data=st.session_state['for_temp'], file_name="forense.txt", mime="text/plain", key="sherlock45")
+
+        # ========================
+        # CASOS HISTÓRICOS
+        # ========================
+
+    with _tab_Casos:
+        st.header("📚 Casos Históricos")
+
+        caso_hist = st.text_input("🔍 Caso de interesse (ou deixe vazio para sugestão):", placeholder="ex: um caso famoso de fraude, um mistério clássico resolvido por perícia...", key="sherlock46")
+
+        if st.button("📚 EXPLORAR CASO", key="sherlock47"):
+            with st.spinner("Buscando o caso..."):
+                topico_caso = caso_hist if caso_hist.strip() else "um caso histórico famoso de investigação bem documentado"
+                prompt = (
+                    f"Apresente um caso investigativo histórico relevante relacionado a: {topico_caso}\n\n"
+                    f"FORMATO:\n\n"
+                    f"📚 CASO: [NOME DO CASO]\n\n"
+                    f"📖 CONTEXTO:\n[o que aconteceu]\n\n"
+                    f"🔍 COMO FOI INVESTIGADO:\n[método usado pelos investigadores]\n\n"
+                    f"🎯 EVIDÊNCIAS DECISIVAS:\n[o que resolveu o caso]\n\n"
+                    f"⚠️ ERROS COMETIDOS NA INVESTIGAÇÃO:\n[se houver, o que poderia ter sido feito melhor]\n\n"
+                    f"💡 LIÇÃO PARA INVESTIGADORES:\n[o que esse caso ensina]\n\n"
+                    f"⚠️ NOTA: se não tiver certeza de detalhes específicos e verificáveis sobre um caso real, "
+                    f"diga isso claramente em vez de inventar fatos."
+                )
+                res = sherlock_ia(prompt)
+                salvar_caso("Casos", topico_caso, res)
+                st.session_state['caso_hist_temp'] = res
+
+        if st.session_state.get('caso_hist_temp'):
+            st.markdown(f"<div class='card-dark'>{st.session_state['caso_hist_temp']}</div>", unsafe_allow_html=True)
+            st.download_button("📋 Baixar (.txt)", data=st.session_state['caso_hist_temp'], file_name="caso_historico.txt", mime="text/plain", key="sherlock48")
+
+        # ========================
+        # SIMULADOR DE INVESTIGAÇÃO
+        # ========================
+
+    with _tab_Ferramentas:
+        st.header("🛠️ Ferramentas Avançadas")
+        st.markdown("*Ferramentas especializadas de investigação criminal e análise.*")
+        (_sContradicoes, _sPerfil, _sConversas, _sImagens, _sDomestica, _sDigital, _sFraudes, _sPadroes, _sProbabilidades, _sPerguntas, _sCritico, _sMetodo) = st.tabs(['❌ Contradições', '👤 Perfil', '💬 Conversas', '🖼️ Imagens', '🏠 Crimes Dom.', '💻 Crimes Digitais', '💸 Fraudes', '🔗 Padrões', '📊 Probabilidades', '❓ Perguntas', '🧠 Pens. Crítico', '🔬 Método'])
+
+        with _sContradicoes:
+            st.header("🎭 Detector de Contradições")
+            st.markdown("Cole relatos, mensagens ou depoimentos para identificar inconsistências.")
+
+            relatos_contra = st.text_area("📝 Cole os relatos/depoimentos (identifique quem disse o quê):", height=200,
+                placeholder="ex: Pessoa A disse: 'Eu não estava lá às 14h'. Mais tarde, Pessoa A disse: 'Cheguei por volta de 14h e já tinha gente lá'...", key="sherlock12_d2")
+
+            if st.button("🎭 DETECTAR CONTRADIÇÕES", key="sherlock16_d2"):
+                if relatos_contra.strip():
+                    with st.spinner("Analisando..."):
+                        prompt = (
+                            f"Analise estes relatos identificando contradições e inconsistências.\n"
+                            f"Relatos: {relatos_contra}\n\n"
+                            f"FORMATO:\n\n"
+                            f"🎭 ANÁLISE DE CONTRADIÇÕES\n\n"
+                            f"🔄 MUDANÇAS DE VERSÃO:\n[onde a mesma pessoa disse coisas diferentes]\n\n"
+                            f"⚠️ CONTRADIÇÕES ENTRE RELATOS:\n[onde diferentes pessoas se contradizem]\n\n"
+                            f"❓ INFORMAÇÕES CONFLITANTES:\n[dados que não se encaixam]\n\n"
+                            f"❓ PERGUNTAS AINDA NÃO RESPONDIDAS:\n[o que precisa ser esclarecido]\n\n"
+                            f"🎯 CONTRADIÇÃO MAIS SIGNIFICATIVA:\n[qual merece mais atenção, e por quê]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Contradicoes", relatos_contra[:60], res)
+                        st.session_state['contra_temp'] = res
+                else:
+                    st.warning("Cole os relatos.")
+
+            if st.session_state.get('contra_temp'):
+                st.markdown(f"<div class='card-red'>{st.session_state['contra_temp']}</div>", unsafe_allow_html=True)
+                st.markdown(DISCLAIMER_PADRAO, unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['contra_temp'], file_name="contradicoes.txt", mime="text/plain", key="sherlock17")
+
+            # ========================
+            # PERFIL COMPORTAMENTAL
+            # ========================
+
+        with _sPerfil:
+            st.header("👤 Perfil Comportamental")
+            st.markdown(DISCLAIMER_COMPORTAMENTAL, unsafe_allow_html=True)
+
+            comportamento_perfil = st.text_area("📝 Descreva os comportamentos observados:", height=150,
+                placeholder="ex: A pessoa começou a chegar mais tarde no trabalho, ficou mais quieta nas reuniões, e parou de almoçar com a equipe...", key="sherlock11_d2")
+
+            if st.button("👤 ANALISAR PADRÕES", key="sherlock18"):
+                if comportamento_perfil.strip():
+                    with st.spinner("Analisando padrões..."):
+                        prompt = (
+                            f"Analise estes comportamentos descritos, gerando hipóteses (nunca diagnósticos).\n"
+                            f"Comportamentos: {comportamento_perfil}\n\n"
+                            f"FORMATO:\n\n"
+                            f"👤 ANÁLISE DE PADRÕES COMPORTAMENTAIS\n\n"
+                            f"🔄 MUDANÇAS IDENTIFICADAS:\n[o que mudou, com base no relato]\n\n"
+                            f"💭 POSSÍVEIS MOTIVAÇÕES (hipóteses, não certezas):\n[3-4 explicações possíveis, incluindo motivos benignos e neutros]\n\n"
+                            f"📊 PADRÕES E HÁBITOS:\n[o que parece ser recorrente]\n\n"
+                            f"❤️ FATORES EMOCIONAIS POSSÍVEIS:\n[hipóteses sobre estado emocional, com cautela]\n\n"
+                            f"❓ O QUE AINDA NÃO SE SABE:\n[informação que falta para entender melhor]\n\n"
+                            f"💬 SUGESTÃO:\n[1 frase recomendando, quando aplicável, conversar diretamente com a pessoa em vez de apenas inferir]"
+                        )
+                        res = sherlock_ia(prompt, "Gere hipóteses variadas, incluindo explicações neutras e benignas — não foque só em explicações negativas ou suspeitas.")
+                        salvar_caso("Perfil", comportamento_perfil[:60], res)
+                        st.session_state['perfil_temp'] = res
+                else:
+                    st.warning("Descreva os comportamentos.")
+
+            if st.session_state.get('perfil_temp'):
+                st.markdown(f"<div class='card-purple'>{st.session_state['perfil_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['perfil_temp'], file_name="perfil_comportamental.txt", mime="text/plain", key="sherlock19")
+
+            # ========================
+            # ANÁLISE DE CONVERSAS
+            # ========================
+
+        with _sConversas:
+            st.header("💬 Análise de Conversas")
+            st.markdown(DISCLAIMER_COMPORTAMENTAL, unsafe_allow_html=True)
+
+            conversa_analise = st.text_area("📝 Cole a conversa que você quer analisar:", height=200,
+                placeholder="Cole aqui a conversa, identificando quem disse cada parte...", key="sherlock10_d2")
+
+            if st.button("💬 ANALISAR CONVERSA", key="sherlock20"):
+                if conversa_analise.strip():
+                    with st.spinner("Analisando..."):
+                        prompt = (
+                            f"Analise esta conversa.\n"
+                            f"Conversa: {conversa_analise}\n\n"
+                            f"FORMATO:\n\n"
+                            f"💬 ANÁLISE DA CONVERSA\n\n"
+                            f"🎭 MUDANÇAS DE TOM:\n[onde o tom muda e o que isso pode sugerir]\n\n"
+                            f"⚠️ POSSÍVEIS CONTRADIÇÕES:\n[inconsistências no que foi dito]\n\n"
+                            f"🙈 ASSUNTOS EVITADOS:\n[temas que parecem ser desviados ou evitados]\n\n"
+                            f"🔄 COMUNICAÇÃO INDIRETA:\n[onde algo parece estar sendo dito sem ser dito diretamente]\n\n"
+                            f"❓ PERGUNTAS SEM RESPOSTA:\n[o que foi perguntado mas não respondido claramente]\n\n"
+                            f"✅ COERÊNCIA GERAL: [Alta/Média/Baixa]\n[avaliação geral de quão consistente é a conversa]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Conversas", conversa_analise[:60], res)
+                        st.session_state['conv_temp'] = res
+                else:
+                    st.warning("Cole a conversa.")
+
+            if st.session_state.get('conv_temp'):
+                st.markdown(f"<div class='card-purple'>{st.session_state['conv_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['conv_temp'], file_name="analise_conversa.txt", mime="text/plain", key="sherlock21")
+
+            # ========================
+            # ANÁLISE DE IMAGENS (DESCRITIVA)
+            # ========================
+
+        with _sImagens:
+            st.header("📸 Análise de Imagens")
+            st.info("📝 Este app trabalha por descrição em texto — descreva a cena com o máximo de detalhes possível.")
+
+            descricao_imagem = st.text_area("📝 Descreva detalhadamente o que você vê na imagem/cena:", height=180,
+                placeholder="ex: Sala com a janela aberta, uma cadeira fora do lugar normal, papéis no chão perto da mesa, luz apagada...", key="sherlock9_d2")
+
+            if st.button("📸 ANALISAR DESCRIÇÃO", key="sherlock22"):
+                if descricao_imagem.strip():
+                    with st.spinner("Analisando os detalhes..."):
+                        prompt = (
+                            f"Analise esta descrição de cena/imagem com olhar investigativo.\n"
+                            f"Descrição: {descricao_imagem}\n\n"
+                            f"FORMATO:\n\n"
+                            f"📸 ANÁLISE DA CENA DESCRITA\n\n"
+                            f"🔍 OBJETOS RELEVANTES:\n[itens mencionados que podem ter importância]\n\n"
+                            f"🏠 AMBIENTE E ORGANIZAÇÃO:\n[o que o estado do ambiente sugere]\n\n"
+                            f"👣 POSSÍVEIS VESTÍGIOS:\n[sinais que indicam o que pode ter acontecido]\n\n"
+                            f"⚠️ ELEMENTOS QUE CHAMAM ATENÇÃO:\n[o que parece fora do normal ou inconsistente]\n\n"
+                            f"👀 DETALHES QUE PODEM TER SIDO IGNORADOS:\n[perguntas sobre o que mais observar]\n\n"
+                            f"🧩 O QUE ESSA CENA PODE SUGERIR:\n[hipóteses, sempre como possibilidades]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Imagens", descricao_imagem[:60], res)
+                        st.session_state['img_temp'] = res
+                else:
+                    st.warning("Descreva a cena.")
+
+            if st.session_state.get('img_temp'):
+                st.markdown(f"<div class='card'>{st.session_state['img_temp']}</div>", unsafe_allow_html=True)
+                st.markdown(DISCLAIMER_PADRAO, unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['img_temp'], file_name="analise_imagem.txt", mime="text/plain", key="sherlock23")
+
+            # ========================
+            # INVESTIGAÇÃO DOMÉSTICA
+            # ========================
+
+        with _sDomestica:
+            st.header("🏠 Investigação Doméstica")
+
+            tipo_dom = st.selectbox("Tipo de problema:", ["Vazamento de água","Ruído estranho","Cheiro incomum","Infiltração","Defeito elétrico","Outro"], key="sherlock24")
+            descricao_dom = st.text_area("📝 Descreva o problema com detalhes:", height=150,
+                placeholder="ex: Aparece uma mancha de umidade no canto do teto da sala, principalmente depois de chover...", key="sherlock8_d2")
+
+            if st.button("🏠 INVESTIGAR PROBLEMA", key="sherlock25"):
+                if descricao_dom.strip():
+                    with st.spinner("Investigando..."):
+                        prompt = (
+                            f"Investigue este problema doméstico.\n"
+                            f"Tipo: {tipo_dom}. Descrição: {descricao_dom}\n\n"
+                            f"FORMATO:\n\n"
+                            f"🏠 INVESTIGAÇÃO — {tipo_dom.upper()}\n\n"
+                            f"🔍 POSSÍVEIS CAUSAS (da mais para a menos provável):\n[liste com lógica]\n\n"
+                            f"🧪 TESTES QUE VOCÊ PODE FAZER:\n[ações simples para isolar a causa]\n\n"
+                            f"⚠️ SINAIS DE URGÊNCIA:\n[quando isso indica um problema que precisa de atenção rápida]\n\n"
+                            f"🔧 QUANDO CHAMAR UM PROFISSIONAL:\n[a partir de que ponto vale a pena]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Domestica", f"{tipo_dom}: {descricao_dom[:40]}", res)
+                        st.session_state['dom_temp'] = res
+                else:
+                    st.warning("Descreva o problema.")
+
+            if st.session_state.get('dom_temp'):
+                st.markdown(f"<div class='card-green'>{st.session_state['dom_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['dom_temp'], file_name="investigacao_domestica.txt", mime="text/plain", key="sherlock26")
+
+            # ========================
+            # INVESTIGAÇÃO DIGITAL
+            # ========================
+
+        with _sDigital:
+            st.header("💻 Investigação Digital")
+
+            tipo_dig = st.selectbox("O que você quer investigar:", ["Site suspeito","Mensagem/e-mail estranho","Perfil possivelmente falso","Link suspeito","Possível engenharia social","Outro"], key="sherlock27")
+            descricao_dig = st.text_area("📝 Descreva o que você está vendo:", height=150,
+                placeholder="ex: Recebi uma mensagem dizendo que ganhei um prêmio e pedindo para clicar em um link...", key="sherlock7_d2")
+
+            if st.button("💻 ANALISAR", key="sherlock28"):
+                if descricao_dig.strip():
+                    with st.spinner("Analisando..."):
+                        prompt = (
+                            f"Analise esta situação digital suspeita.\n"
+                            f"Tipo: {tipo_dig}. Descrição: {descricao_dig}\n\n"
+                            f"FORMATO:\n\n"
+                            f"💻 ANÁLISE DIGITAL — {tipo_dig.upper()}\n\n"
+                            f"🚩 SINAIS DE ALERTA IDENTIFICADOS:\n[com base na descrição]\n\n"
+                            f"🎭 TÉCNICA PROVÁVEL UTILIZADA:\n[se for um golpe, qual técnica é essa]\n\n"
+                            f"📊 NÍVEL DE SUSPEITA: [Baixo/Médio/Alto]\n[justificativa]\n\n"
+                            f"🛡️ O QUE FAZER:\n[ações recomendadas — não clicar, verificar, bloquear, etc]\n\n"
+                            f"📚 COMO RECONHECER ISSO NO FUTURO:\n[padrão geral para identificar esse tipo de ameaça]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Digital", f"{tipo_dig}: {descricao_dig[:40]}", res)
+                        st.session_state['dig_temp'] = res
+                else:
+                    st.warning("Descreva a situação.")
+
+            if st.session_state.get('dig_temp'):
+                st.markdown(f"<div class='card-red'>{st.session_state['dig_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['dig_temp'], file_name="investigacao_digital.txt", mime="text/plain", key="sherlock29")
+
+            # ========================
+            # FRAUDES E GOLPES
+            # ========================
+
+        with _sFraudes:
+            st.header("💰 Fraudes e Golpes")
+
+            golpe_select = st.selectbox("Golpe que você quer entender:", [
+                "Golpe do Pix", "Golpe da falsa central bancária", "Golpe do falso boleto",
+                "Golpe do amor (romance scam)", "Pirâmide financeira", "Golpe do falso emprego",
+                "Investimento fraudulento", "Outro (descrever)",
+            ], key="sherlock6_d2")
+            descricao_golpe = ""
+            if golpe_select == "Outro (descrever)":
+                descricao_golpe = st.text_input("Descreva a situação:", key="sherlock30")
+
+            if st.button("💰 ENTENDER ESSE GOLPE", key="sherlock31"):
+                topico = descricao_golpe if golpe_select == "Outro (descrever)" and descricao_golpe.strip() else golpe_select
+                if topico.strip():
+                    with st.spinner("Preparando explicação..."):
+                        prompt = (
+                            f"Explique detalhadamente: {topico}\n\n"
+                            f"FORMATO:\n\n"
+                            f"💰 {topico.upper()}\n\n"
+                            f"🎭 COMO FUNCIONA:\n[passo a passo de como os criminosos aplicam isso]\n\n"
+                            f"🚩 SINAIS DE ALERTA:\n[como reconhecer]\n\n"
+                            f"🛡️ COMO SE PROTEGER:\n[ações preventivas]\n\n"
+                            f"⚡ COMO AGIR SE JÁ CAIU NESSE GOLPE:\n[passos imediatos]\n\n"
+                            f"📂 INFORMAÇÕES IMPORTANTES A REUNIR:\n[o que documentar para denúncia/recuperação]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Fraudes", topico, res)
+                        st.session_state['fraude_temp'] = res
+                else:
+                    st.warning("Escolha ou descreva o golpe.")
+
+            if st.session_state.get('fraude_temp'):
+                st.markdown(f"<div class='card-dark'>{st.session_state['fraude_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['fraude_temp'], file_name="fraudes_golpes.txt", mime="text/plain", key="sherlock32")
+
+            # ========================
+            # DETECTOR DE PADRÕES
+            # ========================
+
+        with _sPadroes:
+            st.header("🔍 Detector de Padrões")
+
+            dados_padroes = st.text_area("📝 Liste os dados (datas, pessoas, lugares, eventos):", height=180,
+                placeholder="ex: Segunda - encontro com João no café X\nQuarta - mensagem de Maria sobre o mesmo assunto\n...", key="sherlock5_d2")
+
+            if st.button("🔍 ENCONTRAR PADRÕES", key="sherlock33"):
+                if dados_padroes.strip():
+                    with st.spinner("Procurando padrões..."):
+                        prompt = (
+                            f"Analise estes dados procurando padrões e relações escondidas.\n"
+                            f"Dados: {dados_padroes}\n\n"
+                            f"FORMATO:\n\n"
+                            f"🔍 PADRÕES IDENTIFICADOS\n\n"
+                            f"🔗 RELAÇÕES ENTRE OS ELEMENTOS:\n[conexões encontradas entre datas, pessoas, lugares]\n\n"
+                            f"📊 PADRÕES DE FREQUÊNCIA:\n[o que se repete e com que regularidade]\n\n"
+                            f"⏰ PADRÕES TEMPORAIS:\n[horários ou dias que se destacam]\n\n"
+                            f"🎯 PADRÃO MAIS SIGNIFICATIVO:\n[o que mais chama atenção, e por quê]\n\n"
+                            f"❓ O QUE ISSO PODE SUGERIR:\n[hipóteses derivadas do padrão]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Padroes", "Detecção de padrões", res)
+                        st.session_state['pad_temp'] = res
+                else:
+                    st.warning("Liste os dados.")
+
+            if st.session_state.get('pad_temp'):
+                st.markdown(f"<div class='card-teal'>{st.session_state['pad_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['pad_temp'], file_name="padroes.txt", mime="text/plain", key="sherlock34")
+
+            # ========================
+            # ANÁLISE DE PROBABILIDADES
+            # ========================
+
+        with _sProbabilidades:
+            st.header("📊 Análise de Probabilidades")
+
+            hipoteses_prob = st.text_area("📝 Liste as hipóteses que você já tem (uma por linha):", height=150,
+                placeholder="ex: A pessoa esqueceu o compromisso\nA pessoa teve um imprevisto\nA pessoa evitou de propósito...", key="sherlock4_d2")
+            evidencias_prob = st.text_area("📝 Evidências disponíveis:", height=100,
+                placeholder="ex: Ela respondeu mensagens normalmente outras vezes...", key="sherlock3_d2")
+
+            if st.button("📊 ANALISAR PROBABILIDADES", key="sherlock35"):
+                if hipoteses_prob.strip():
+                    with st.spinner("Calculando consistência..."):
+                        prompt = (
+                            f"Analise a consistência destas hipóteses com as evidências.\n"
+                            f"Hipóteses: {hipoteses_prob}\n"
+                            f"Evidências: {evidencias_prob or 'não informadas'}\n\n"
+                            f"FORMATO:\n\n"
+                            f"📊 ANÁLISE DE PROBABILIDADES\n\n"
+                            f"[Para cada hipótese listada:]\n"
+                            f"🧩 [HIPÓTESE]\n"
+                            f"Consistência com as evidências: [X]/100\n"
+                            f"Justificativa: [por quê]\n\n"
+                            f"🎯 HIPÓTESE MAIS CONSISTENTE:\n[qual tem maior consistência com as evidências, e por quê — sem afirmar certeza absoluta]\n\n"
+                            f"⚠️ LIMITAÇÃO DESTA ANÁLISE:\n[o que ainda impede uma conclusão definitiva]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Probabilidades", "Análise de probabilidades", res)
+                        st.session_state['prob_temp'] = res
+                else:
+                    st.warning("Liste as hipóteses.")
+
+            if st.session_state.get('prob_temp'):
+                renderizar_indice(st.session_state['prob_temp'], "CONSISTÊNCIA GERAL")
+                st.markdown(f"<div class='card'>{st.session_state['prob_temp']}</div>", unsafe_allow_html=True)
+                st.markdown(DISCLAIMER_PADRAO, unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['prob_temp'], file_name="probabilidades.txt", mime="text/plain", key="sherlock36")
+
+            # ========================
+            # PERGUNTAS INTELIGENTES
+            # ========================
+
+        with _sPerguntas:
+            st.header("❓ Perguntas Inteligentes")
+
+            situacao_perg = st.text_area("📝 Descreva a situação:", height=150, value=st.session_state.caso_padrao, key="situacao_perg")
+
+            if st.button("❓ GERAR PERGUNTAS", key="sherlock37"):
+                if situacao_perg.strip():
+                    with st.spinner("Pensando nas perguntas certas..."):
+                        prompt = (
+                            f"Gere as perguntas que um investigador experiente faria sobre esta situação.\n"
+                            f"Situação: {situacao_perg}\n\n"
+                            f"FORMATO:\n\n"
+                            f"❓ PERGUNTAS QUE UM INVESTIGADOR FARIA\n\n"
+                            f"🎯 PERGUNTAS FUNDAMENTAIS:\n[5-7 perguntas essenciais que ainda não foram respondidas]\n\n"
+                            f"🔍 PERGUNTAS QUE NINGUÉM PENSOU EM FAZER:\n[2-3 perguntas não óbvias mas potencialmente decisivas]\n\n"
+                            f"💡 POR QUE ESSAS PERGUNTAS IMPORTAM:\n[explicação de como cada uma pode destravar a investigação]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Perguntas", situacao_perg[:60], res)
+                        st.session_state['perg_temp'] = res
+                else:
+                    st.warning("Descreva a situação.")
+
+            if st.session_state.get('perg_temp'):
+                st.markdown(f"<div class='card-gold'>{st.session_state['perg_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['perg_temp'], file_name="perguntas.txt", mime="text/plain", key="sherlock38")
+
+            # ========================
+            # PENSAMENTO CRÍTICO
+            # ========================
+
+        with _sCritico:
+            st.header("⚖️ Pensamento Crítico")
+
+            raciocinio_critico = st.text_area("📝 Cole seu raciocínio ou conclusão sobre algo:", height=150,
+                placeholder="ex: Acho que ela está escondendo algo porque ficou nervosa quando perguntei sobre o fim de semana...", key="sherlock2")
+
+            if st.button("⚖️ ANALISAR MEU RACIOCÍNIO", key="sherlock39"):
+                if raciocinio_critico.strip():
+                    with st.spinner("Analisando..."):
+                        prompt = (
+                            f"Analise este raciocínio identificando possíveis vieses e erros de interpretação.\n"
+                            f"Raciocínio: {raciocinio_critico}\n\n"
+                            f"FORMATO:\n\n"
+                            f"⚖️ ANÁLISE DO RACIOCÍNIO\n\n"
+                            f"🧠 VIESES POSSÍVEIS IDENTIFICADOS:\n[viés de confirmação, ancoragem, etc — se aplicável]\n\n"
+                            f"⚠️ POSSÍVEIS ERROS DE INTERPRETAÇÃO:\n[onde a conclusão pode estar pulando etapas]\n\n"
+                            f"📊 GENERALIZAÇÕES:\n[se há generalização apressada]\n\n"
+                            f"❓ FALTA DE EVIDÊNCIAS:\n[onde a conclusão se apoia em suposição, não fato]\n\n"
+                            f"✅ COMO FORTALECER ESSE RACIOCÍNIO:\n[o que ajudaria a confirmar ou refutar com mais solidez]"
+                        )
+                        res = sherlock_ia(prompt)
+                        salvar_caso("Critico", raciocinio_critico[:60], res)
+                        st.session_state['crit_temp'] = res
+                else:
+                    st.warning("Cole seu raciocínio.")
+
+            if st.session_state.get('crit_temp'):
+                st.markdown(f"<div class='card-dark'>{st.session_state['crit_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['crit_temp'], file_name="pensamento_critico.txt", mime="text/plain", key="sherlock40")
+
+            # ========================
+            # MÉTODO SHERLOCK
+            # ========================
+
+        with _sMetodo:
+            st.header("🧠 Método Sherlock")
+
+            tecnica_metodo = st.selectbox("Técnica:", ["Dedução","Indução","Abdução","Observação","Eliminação de hipóteses","Raciocínio lógico","Investigação científica"], key="sherlock41")
+
+            if st.button("🧠 APRENDER", key="sherlock42"):
+                with st.spinner("Preparando explicação..."):
+                    prompt = (
+                        f"Explique de forma didática a técnica: {tecnica_metodo}\n\n"
+                        f"FORMATO:\n\n"
+                        f"🧠 {tecnica_metodo.upper()}\n\n"
+                        f"📖 O QUE É:\n[definição clara]\n\n"
+                        f"🔍 COMO FUNCIONA:\n[mecanismo passo a passo]\n\n"
+                        f"💡 EXEMPLO PRÁTICO:\n[exemplo ilustrativo, fictício]\n\n"
+                        f"🎯 QUANDO USAR:\n[situações onde essa técnica é mais útil]\n\n"
+                        f"🏋️ EXERCÍCIO PARA TREINAR:\n[1 exercício prático]"
+                    )
+                    res = sherlock_ia(prompt)
+                    salvar_caso("Metodo", tecnica_metodo, res)
+                    st.session_state['metodo_temp'] = res
+
+            if st.session_state.get('metodo_temp'):
+                st.markdown(f"<div class='card'>{st.session_state['metodo_temp']}</div>", unsafe_allow_html=True)
+                st.download_button("📋 Baixar (.txt)", data=st.session_state['metodo_temp'], file_name="metodo.txt", mime="text/plain", key="sherlock43")
+
+            # ========================
+            # LABORATÓRIO FORENSE (EDUCATIVO)
+            # ========================
 
 # --- RODAPÉ ---
 st.markdown(
