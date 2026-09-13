@@ -112,10 +112,22 @@ def gerar_json_sessao() -> str:
     dados['salvo_em'] = datetime.now().strftime('%d/%m/%Y %H:%M')
     return json.dumps(dados, ensure_ascii=False, indent=2, default=str)
 
-def carregar_json_sessao(dados: dict):
-    for k in CHAVES_SALVAR:
-        if k in dados:
-            st.session_state[k] = dados[k]
+def carregar_json_sessao(dados):
+    _bloq = {'api_key','etapa','nome_login','chave_login','upload_login','btn_entrar_login'}
+    _pref = (
+        'btn_','sel_','ul_','dl_','cad_','_sub','_sm','_tab','_bsc',
+        'ativo_','rem_','sel_pet_','ev_','prof_','hig_','prev_',
+        'vac_','sint_','comp_','trad_','subs_','amb_','viag_','chat_',
+        'duvida_','emerg_','peso_','data_','obs_','tipo_','vet_','desc_',
+        'local_','prox_','alim','sit_emerg_','tc_','oraf','siau','agmag',
+        'lv','mv','pt','pi','sh','wc','rv','rp','rc',
+    )
+    import re as _re
+    for k, v in dados.items():
+        if k in _bloq: continue
+        if any(k.startswith(p) for p in _pref): continue
+        if _re.match(r'.+_\d+$', k): continue
+        st.session_state[k] = v
 
 def salvar_perfil_cache(usuario: str):
     _cache["perfis"][usuario] = {k: st.session_state.get(k) for k in CHAVES_SALVAR}
@@ -277,7 +289,7 @@ if 'historico_casos' not in st.session_state: st.session_state['historico_casos'
 
 if st.session_state.etapa == "Login":
     st.markdown("# 🤖 SHERLOCK IA")
-    st.markdown("<div class=\'card\'><b>🔒 ACESSO RESTRITO A CLIENTES DO QUIZ COM PRÊMIOS</b><br>🔗 quizcompremios.com.br</div>", unsafe_allow_html=True)
+    st.markdown("<div class=\'card\'><b>🔒 ACESSO RESTRITO A CLIENTES DO QUIZ COM PRÊMIOS</b><br>🔗 <a href='https://quizcompremios.com.br' target='_blank' style='color:#4F46E5;font-weight:700;text-decoration:underline;'>quizcompremios.com.br</a></div>", unsafe_allow_html=True)
     st.info("💻 **Dica:** Pela complexidade dos agentes, no computador a experiência é mais agradável.")
     with st.container():
         nome  = st.text_input("Seu Nome:", key="nome_login")
@@ -302,6 +314,27 @@ elif st.session_state.etapa == "App":
 
     # TABS
     _tab_Home, _tab_Investigacao, _tab_Hipoteses, _tab_Evidencias, _tab_Timeline, _tab_Contradicoes, _tab_Perfil, _tab_Conversas, _tab_Imagens, _tab_Domestica, _tab_Digital, _tab_Fraudes, _tab_Padroes, _tab_Probabilidades, _tab_Perguntas, _tab_Critico, _tab_Metodo, _tab_Forense, _tab_Casos, _tab_Simulador, _tab_Diario, _tab_Painel, _tab_Academia, _tab_Desafio, _tab_Sherlock24, _tab_CasosImpossiveis, _tab_Biblioteca = st.tabs(['🏠 Painel Principal', '🔎 Investigação Geral', '🧩 Construção de Hipó', '📋 Organizador de Evi', '📄 Timeline', '📄 Contradicoes', '📄 Perfil', '📄 Conversas', '📄 Imagens', '📄 Domestica', '📄 Digital', '📄 Fraudes', '📄 Padroes', '📄 Probabilidades', '📄 Perguntas', '📄 Critico', '📄 Metodo', '📄 Forense', '📄 Casos', '📄 Simulador', '📄 Diario', '📄 Painel', '📄 Academia', '📄 Desafio', '📄 Sherlock24', '📄 CasosImpossiveis', '📄 Biblioteca'])
+
+    # ── BARRA SALVAR — aparece em todas as abas ──
+    with st.expander("💾 Salvar / Carregar meus dados", expanded=False):
+        _bsc1, _bsc2 = st.columns(2)
+        with _bsc1:
+            import json as _jsv
+            _dsv = {k: st.session_state.get(k) for k in list(st.session_state.keys()) if not k.startswith('_') and k not in ('api_key',)}
+            st.download_button("💾 Baixar meus dados (.json)",
+                data=_jsv.dumps(_dsv, ensure_ascii=False, indent=2, default=str),
+                file_name=f"dados_{st.session_state.get('usuario','user')}.json",
+                mime="application/json", key="dl_barra_sv_sherlock")
+        with _bsc2:
+            _fupsv = st.file_uploader("📂 Carregar dados salvos:", type=["json"], key="ul_barra_sv_sherlock", label_visibility="collapsed")
+            if _fupsv:
+                try:
+                    import json as _jld
+                    for _k2,_v2 in _jld.loads(_fupsv.read().decode()).items():
+                        if _k2 not in ('api_key','etapa'): st.session_state[_k2] = _v2
+                    st.success("✅ Dados restaurados!"); st.rerun()
+                except: st.error("Arquivo inválido.")
+
 
 
     # TABS — navegação nativa (16 + Ferramentas)
@@ -388,6 +421,27 @@ elif st.session_state.etapa == "App":
         # INVESTIGAÇÃO GERAL
         # ========================
 
+        st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+        st.markdown("### 💾 Salvar e Carregar Dados")
+        _csl1, _csl2 = st.columns(2)
+        with _csl1:
+            import json as _json_sv
+            _dados_sv = {k: st.session_state.get(k) for k in list(st.session_state.keys()) if not k.startswith('_')}
+            st.download_button("💾 Salvar dados (.json)",
+                data=_json_sv.dumps(_dados_sv, ensure_ascii=False, indent=2, default=str),
+                file_name=f"dados_{st.session_state.get('usuario','user')}.json",
+                mime="application/json", key="dl_sv_sherlock")
+        with _csl2:
+            _arq_sv = st.file_uploader("📂 Carregar dados:", type=["json"], key="ul_sv_sherlock")
+            if _arq_sv:
+                try:
+                    import json as _json_ld
+                    for _k, _v in _json_ld.loads(_arq_sv.read().decode()).items():
+                        st.session_state[_k] = _v
+                    st.success("✅ Dados carregados!")
+                    st.rerun()
+                except: st.error("Arquivo inválido.")
+
     with _tab_Investigacao:
         st.header("🔎 Investigação Geral")
         st.markdown("Descreva a situação. A IA organiza fatos, hipóteses e próximos passos.")
@@ -413,6 +467,7 @@ elif st.session_state.etapa == "App":
                         f"✅ PRÓXIMOS PASSOS DA INVESTIGAÇÃO:\n[ações concretas para avançar]"
                     )
                     res = sherlock_ia(prompt)
+                    if res: st.session_state['res_investigacao_sherlo1'] = str(res)
                     salvar_caso("Investigacao", situacao_inv[:60], res)
                     st.session_state['inv_temp'] = res
                     st.session_state.caso_padrao = situacao_inv
@@ -458,6 +513,7 @@ elif st.session_state.etapa == "App":
                         f"🎯 HIPÓTESE MAIS CONSISTENTE ATÉ AGORA:\n[qual parece mais provável com base no que foi descrito, e por quê — sem afirmar certeza]"
                     )
                     res = sherlock_ia(prompt)
+                    if res: st.session_state['res_hipoteses_sherlo2'] = str(res)
                     salvar_caso("Hipoteses", situacao_hip[:60], res)
                     st.session_state['hip_temp'] = res
             else:
@@ -534,6 +590,7 @@ elif st.session_state.etapa == "App":
                         f"🎯 EVIDÊNCIA MAIS DECISIVA:\n[qual delas mais pesa, e por quê]"
                     )
                     res = sherlock_ia(prompt)
+                    if res: st.session_state['res_evidencias_sherlo3'] = str(res)
                     st.session_state['evid_analise_temp'] = res
 
             if st.session_state.get('evid_analise_temp'):
@@ -564,6 +621,7 @@ elif st.session_state.etapa == "App":
                         f"🎯 PONTO MAIS CRÍTICO DA LINHA DO TEMPO:\n[o momento que merece mais investigação]"
                     )
                     res = sherlock_ia(prompt)
+                    if res: st.session_state['res_timeline_sherlo4'] = str(res)
                     salvar_caso("Timeline", "Linha do tempo", res)
                     st.session_state['time_temp'] = res
             else:
@@ -602,6 +660,7 @@ elif st.session_state.etapa == "App":
                     f"🔒 [NÃO REVELE A SOLUÇÃO AINDA — isso vem só se o usuário pedir a resposta depois]"
                 )
                 res = sherlock_ia(prompt)
+                if res: st.session_state['res_simulador_sherlo5'] = str(res)
                 st.session_state['sim_caso_temp'] = res
                 st.session_state['sim_caso_categoria'] = categoria_sim
                 st.session_state['sim_solucao_revelada'] = False
@@ -625,6 +684,7 @@ elif st.session_state.etapa == "App":
                             f"🎯 NOTA: [X]/10\n[avaliação do raciocínio do usuário]"
                         )
                         res_sol = sherlock_ia(prompt_solucao)
+                        if res_sol: st.session_state['res_simulador_sherlo6'] = str(res_sol)
                         st.session_state['sim_solucao_temp'] = res_sol
                         st.session_state['sim_solucao_revelada'] = True
                         st.session_state.casos_resolvidos_count += 1
@@ -801,6 +861,7 @@ elif st.session_state.etapa == "App":
                     f"deveria lembrar meses depois]"
                 )
                 res = sherlock_ia(prompt, "Você está escrevendo a melhor aula possível sobre este tema. Imagine que está escrevendo para uma pessoa inteligente e exigente que vai notar e se decepcionar com qualquer superficialidade, clichê vazio, ou exemplo fraco. Densidade e precisão acima de tudo — mas sem perder a clareza didática.")
+                if res: st.session_state['res_academia_sherlo7'] = str(res)
                 salvar_caso("Academia", aula_escolhida, res)
                 st.session_state['aula_temp'] = res
 
@@ -834,6 +895,7 @@ elif st.session_state.etapa == "App":
                     f"✅ RESPOSTA: [a solução, mas marque claramente como RESPOSTA para o app esconder até o usuário clicar]"
                 )
                 res = sherlock_ia(prompt)
+                if res: st.session_state['res_desafio_sherlo8'] = str(res)
                 st.session_state['desafio_temp'] = res
                 st.session_state['desafio_revelado'] = False
                 st.session_state['desafio_nivel_jogado'] = nivel_desafio
@@ -894,6 +956,7 @@ elif st.session_state.etapa == "App":
                 if pergunta_sherlock.strip():
                     with st.spinner("Investigando..."):
                         resp = sherlock_ia(pergunta_sherlock, "Responda como um detetive consultor experiente, lógico e didático.")
+                        if resp: st.session_state['res_sherlock24_sherlo9'] = str(resp)
                     st.session_state.chat_sherlock.append({"role": "user", "content": pergunta_sherlock})
                     st.session_state.chat_sherlock.append({"role": "assistant", "content": resp})
                     st.session_state.sherlock_key += 1
@@ -933,6 +996,7 @@ elif st.session_state.etapa == "App":
                         f"[NÃO REVELE MAIS NADA AINDA — isso é só a primeira etapa do dossiê]"
                     )
                     res = sherlock_ia(prompt)
+                    if res: st.session_state['res_casosimpossi_sherlo10'] = str(res)
                     st.session_state['dossie_conteudo'] = [res]
                     st.session_state['dossie_dificuldade'] = dificuldade_dossie
                     st.session_state.dossie_etapa = 1
@@ -962,6 +1026,7 @@ elif st.session_state.etapa == "App":
                                 f"📂 NOVO ELEMENTO DESBLOQUEADO:\n[uma nova peça do dossiê — evidência, depoimento, documento]"
                             )
                             res = sherlock_ia(prompt)
+                            if res: st.session_state['res_casosimpossi_sherlo11'] = str(res)
                             st.session_state['dossie_conteudo'].append(res)
                             st.rerun()
                     else:
@@ -981,6 +1046,7 @@ elif st.session_state.etapa == "App":
                             f"🏆 PARABÉNS POR INVESTIGAR ATÉ O FIM!"
                         )
                         res_final = sherlock_ia(prompt)
+                        if res_final: st.session_state['res_casosimpossi_sherlo12'] = str(res_final)
                         st.session_state['dossie_solucao'] = res_final
                         st.session_state.casos_resolvidos_count += 1
                         st.rerun()
@@ -1062,6 +1128,7 @@ elif st.session_state.etapa == "App":
                     f"💡 CURIOSIDADE HISTÓRICA:\n[1 fato interessante sobre a evolução dessa técnica]"
                 )
                 res = sherlock_ia(prompt, "Mantenha o conteúdo estritamente educativo e conceitual — nunca forneça instruções de como evitar ou burlar essa técnica forense.")
+                if res: st.session_state['res_forense_sherlo13'] = str(res)
                 salvar_caso("Forense", tema_forense, res)
                 st.session_state['for_temp'] = res
 
@@ -1094,6 +1161,7 @@ elif st.session_state.etapa == "App":
                     f"diga isso claramente em vez de inventar fatos."
                 )
                 res = sherlock_ia(prompt)
+                if res: st.session_state['res_casos_sherlo14'] = str(res)
                 salvar_caso("Casos", topico_caso, res)
                 st.session_state['caso_hist_temp'] = res
 
@@ -1132,6 +1200,7 @@ elif st.session_state.etapa == "App":
                             f"🎯 CONTRADIÇÃO MAIS SIGNIFICATIVA:\n[qual merece mais atenção, e por quê]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_scontradicoe_sherlo15'] = str(res)
                         salvar_caso("Contradicoes", relatos_contra[:60], res)
                         st.session_state['contra_temp'] = res
                 else:
@@ -1169,6 +1238,7 @@ elif st.session_state.etapa == "App":
                             f"💬 SUGESTÃO:\n[1 frase recomendando, quando aplicável, conversar diretamente com a pessoa em vez de apenas inferir]"
                         )
                         res = sherlock_ia(prompt, "Gere hipóteses variadas, incluindo explicações neutras e benignas — não foque só em explicações negativas ou suspeitas.")
+                        if res: st.session_state['res_sperfil_sherlo16'] = str(res)
                         salvar_caso("Perfil", comportamento_perfil[:60], res)
                         st.session_state['perfil_temp'] = res
                 else:
@@ -1205,6 +1275,7 @@ elif st.session_state.etapa == "App":
                             f"✅ COERÊNCIA GERAL: [Alta/Média/Baixa]\n[avaliação geral de quão consistente é a conversa]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_sconversas_sherlo17'] = str(res)
                         salvar_caso("Conversas", conversa_analise[:60], res)
                         st.session_state['conv_temp'] = res
                 else:
@@ -1241,6 +1312,7 @@ elif st.session_state.etapa == "App":
                             f"🧩 O QUE ESSA CENA PODE SUGERIR:\n[hipóteses, sempre como possibilidades]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_simagens_sherlo18'] = str(res)
                         salvar_caso("Imagens", descricao_imagem[:60], res)
                         st.session_state['img_temp'] = res
                 else:
@@ -1276,6 +1348,7 @@ elif st.session_state.etapa == "App":
                             f"🔧 QUANDO CHAMAR UM PROFISSIONAL:\n[a partir de que ponto vale a pena]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_sdomestica_sherlo19'] = str(res)
                         salvar_caso("Domestica", f"{tipo_dom}: {descricao_dom[:40]}", res)
                         st.session_state['dom_temp'] = res
                 else:
@@ -1311,6 +1384,7 @@ elif st.session_state.etapa == "App":
                             f"📚 COMO RECONHECER ISSO NO FUTURO:\n[padrão geral para identificar esse tipo de ameaça]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_sdigital_sherlo20'] = str(res)
                         salvar_caso("Digital", f"{tipo_dig}: {descricao_dig[:40]}", res)
                         st.session_state['dig_temp'] = res
                 else:
@@ -1351,6 +1425,7 @@ elif st.session_state.etapa == "App":
                             f"📂 INFORMAÇÕES IMPORTANTES A REUNIR:\n[o que documentar para denúncia/recuperação]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_sfraudes_sherlo21'] = str(res)
                         salvar_caso("Fraudes", topico, res)
                         st.session_state['fraude_temp'] = res
                 else:
@@ -1385,6 +1460,7 @@ elif st.session_state.etapa == "App":
                             f"❓ O QUE ISSO PODE SUGERIR:\n[hipóteses derivadas do padrão]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_spadroes_sherlo22'] = str(res)
                         salvar_caso("Padroes", "Detecção de padrões", res)
                         st.session_state['pad_temp'] = res
                 else:
@@ -1423,6 +1499,7 @@ elif st.session_state.etapa == "App":
                             f"⚠️ LIMITAÇÃO DESTA ANÁLISE:\n[o que ainda impede uma conclusão definitiva]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_sprobabilida_sherlo23'] = str(res)
                         salvar_caso("Probabilidades", "Análise de probabilidades", res)
                         st.session_state['prob_temp'] = res
                 else:
@@ -1456,6 +1533,7 @@ elif st.session_state.etapa == "App":
                             f"💡 POR QUE ESSAS PERGUNTAS IMPORTAM:\n[explicação de como cada uma pode destravar a investigação]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_sperguntas_sherlo24'] = str(res)
                         salvar_caso("Perguntas", situacao_perg[:60], res)
                         st.session_state['perg_temp'] = res
                 else:
@@ -1490,6 +1568,7 @@ elif st.session_state.etapa == "App":
                             f"✅ COMO FORTALECER ESSE RACIOCÍNIO:\n[o que ajudaria a confirmar ou refutar com mais solidez]"
                         )
                         res = sherlock_ia(prompt)
+                        if res: st.session_state['res_scritico_sherlo25'] = str(res)
                         salvar_caso("Critico", raciocinio_critico[:60], res)
                         st.session_state['crit_temp'] = res
                 else:
@@ -1521,6 +1600,7 @@ elif st.session_state.etapa == "App":
                         f"🏋️ EXERCÍCIO PARA TREINAR:\n[1 exercício prático]"
                     )
                     res = sherlock_ia(prompt)
+                    if res: st.session_state['res_smetodo_sherlo26'] = str(res)
                     salvar_caso("Metodo", tecnica_metodo, res)
                     st.session_state['metodo_temp'] = res
 
